@@ -36,14 +36,76 @@ def write_GSE_info(dictionary, attributes, Filter, filename, logfile = "log.txt"
 
             if Filter[element] != dictionary[element]:
 
-                l.write( f"{str(element)} is {str(dictionary[element])}, not {Filter[element]}\n" )
+                l.write( f"{dictionary['Accession']}:{str(element)} is {str(dictionary[element])}, not {Filter[element]}\n" )
                 break
 
             else:
 
-                 l.write( f"{str(element)} not found\n" )
+                l.write( f"{dictionary['Accession']}:{str(element)} not found\n" )
                  
         f.write( sep.join([str(dictionary[element]) for element in attributes ]) + "\n" ) 
+
+def write_GSEs(gseList, filename):
+
+    length = len(gseList)
+    maxSearch = 300
+    Entrez.email ="eigtw59tyjrt403@gmail.com"
+    #with possibly hundreds or thousands of GSEs
+    #we dont want to stop the whole proccess if one batch fails
+    #if it does, log it for later
+
+    keyErrorList = []
+    notReadErrorList = []
+    otherErrorsList = []
+    for i in range(length//maxSearch + 1):
+
+        idx = i*maxSearch
+        to_search = gseList[idx:idx+maxSearch]
+        postRequest = Entrez.epost("gds", id = ",".join(to_search))
+
+        try:
+
+            postResult = Entrez.read(postRequest)
+            w = postResult["WebEnv"]
+            q = postResult["QueryKey"]
+            summaryRequest = Entrez.esummary(db = "gds", query_key= q, WebEnv=w)
+            summaryResult = Entrez.read(summaryRequest)
+            for result in summaryResult:
+
+                write_GSE_info(result, ["Id", "Accession", "title", "summary", "GPL", "GSE", "taxon", "gdsType"],\
+                          {"taxon": "Homo sapiens"}, filename = filename + ".txt", logfile=filename + "Log.txt")
+        except KeyError:
+
+            keyErrorList.extend(gseList[idx:idx+maxSearch])
+        except (expat.ExpatError, ValueError):
+
+            notReadErrorList.extend(gseList[idx:idx+maxSearch])
+        except Exception as e:
+
+            otherErrorsList.extend([ str(e) + ":" + gse for gse in gseList[idx:idx+maxSearch] ])
+    if keyErrorList:
+
+        with open(filename + "_key_error.txt", "w+") as f:
+
+            for gse in keyErrorList:
+
+                f.write(gse+"\n")
+
+    if notReadErrorList:
+
+        with open(filename + "_not_read_error.txt", "w+") as f:
+
+            for gse in notReadErrorList:
+
+                f.write(gse+"\n")
+
+    if otherErrorsList:
+
+        with open(filename + "_other_errors.txt", "w+") as f:
+
+            for gse in otherErrorsList:
+
+                f.write(gse+"\n")
 
 def get_column_info(html_text, colname):
 
@@ -73,8 +135,6 @@ def get_column_info(html_text, colname):
     s_noncol = stripped[e:s]
     s_noncol = s_noncol[regexp_col.match(stripped[e:s]).span()[1]:] #extract entire column content
     splitted = re.findall( r"<td[^>]*>(.*?)</td>", s_noncol)[0].split("<br>") #extract column values, separated by <br>
-
-
 
     return [i.split(":")  for i in splitted][:-1]            
         
