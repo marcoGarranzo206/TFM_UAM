@@ -164,7 +164,7 @@ def _BRIM(B, c, m,seed = None, assingments = None):
 
     return BRIM_loop(B,c,S,m)
 
-def BRIM_bisec(g,resolution = 1, cmax_top = None,null = "config", B = None, m = None):
+def BRIM_bisec(g,resolution = 1, c_max = None,null = "config", B = None, m = None):
     
     """
     Find modules using brim alg without a fixed number of c, using binary search method described
@@ -186,9 +186,9 @@ def BRIM_bisec(g,resolution = 1, cmax_top = None,null = "config", B = None, m = 
             
             B, m, wpos, wneg = BNullBipartiteConfigNeg(g, resolution)
         
-    if cmax_top is None:
+    if c_max is None:
         
-        cmax_top = min(B.shape) 
+        c_max = min(B.shape) 
     
    
     c = 2
@@ -199,14 +199,18 @@ def BRIM_bisec(g,resolution = 1, cmax_top = None,null = "config", B = None, m = 
     c_max = B.shape[1]
     while True:
 
+
         assingments_s[np.random.choice(range(B.shape[1]), half, replace = False )] = np.random.randint(low = 0, high = c, size = half)
         R_T, B, S, Q_new = _BRIM(B,c,m,assingments = assingments_s)
+        assingments_s = np.where(S != 0 )[1]
+        
         if Q_new > Q_old:
 
             R_T_max, B_max, S_max, Q_max = R_T, B, S, Q_new
             if c == B.shape[1]:
 
                 return R_T_max, B_max, S_max, Q_max
+        
             prev_c = c
             c = min(2*c, B.shape[1] - 1)
             Q_old = Q_new
@@ -230,6 +234,8 @@ def BRIM_bisec(g,resolution = 1, cmax_top = None,null = "config", B = None, m = 
         
         assingments_s[np.random.choice(range(B.shape[1]), half, replace = False )] = np.random.randint(low = 0, high = c, size = half)
         R_T, B, S, Q_new = _BRIM(B,c,m,assingments = assingments_s)
+        assingments_s = np.where(S != 0 )[1]
+        
         if Q_new > Q_max:
 
             R_T_max, B_max, S_max, Q_max = R_T, B, S, Q_new
