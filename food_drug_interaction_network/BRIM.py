@@ -15,9 +15,6 @@ def BRIM_loop(B,c, S, m):
     Assign modules to the first set (say A) randomly.
     Based on those assingments, assign modules to the other set (say B)
     Based on this new B assignment, reassign the first set to new modules
-    
-    Do until convergence: NOT IMPLEMENTED
-    
     """
     
     Q_old = -1
@@ -172,7 +169,7 @@ def BRIM_bisec(g,resolution = 1, c_max = None,null = "config", B = None, m = Non
     
     start with low c, calc Q
     double c until Q decreases
-    go to middle point between new c and olde c
+    bisect to find optimal c
     repeat until convergence
     """
     
