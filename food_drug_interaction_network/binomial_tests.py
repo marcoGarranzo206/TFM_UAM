@@ -1,6 +1,8 @@
 from collections import Counter
 from collections import defaultdict
 from scipy.stats import rankdata
+import numpy as np
+from scipy import stats
 
 def build_ref(ref_file):
 
