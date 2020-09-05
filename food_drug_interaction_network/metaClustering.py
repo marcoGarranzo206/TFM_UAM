@@ -9,11 +9,11 @@ class DisjointSet:
     """
     Barebones implementation of disjoint set
     The one in pypi ran into an unresolved error for high number of union operations
-    Each array index represents an element, an the value, its parent
+    Each array index represents an element, and the value, its parent
     2 nodes are in the same set if they share the same root (node with itself as a parent)
     
     union: join 2 sets
-    find: find the set (parent) of node i. traverse array until root. ALong the way
+    find: find the set (root) of node i. traverse array until root. Along the way
     change all nodes parents to the root for faster finds in future
 
     """
