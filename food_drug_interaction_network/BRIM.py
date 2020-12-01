@@ -72,7 +72,7 @@ def BNullBipartiteConfigPos(g, resolution = 1):
     m = np.sum(A)
     B = A - resolution*((ki@dj)/m)
         
-    return B, m
+    return B, m, s2, s1
         
 
 def BNullBipartiteConfigNeg(g, resolution = 1):
@@ -126,7 +126,7 @@ def BNullBipartiteConfigNeg(g, resolution = 1):
     m = w_pos + w_neg
     
     B = A - resolution*((ki_pos@dj_pos).T/w_pos) + (1/resolution)*((ki_neg@dj_neg).T/w_neg)
-    return B, m, w_pos, w_neg
+    return B, m, w_pos, w_neg, s2, s1
     
 
 def BRIM(g,c,resolution = 1,null = "config", seed = None, assingments = None):
