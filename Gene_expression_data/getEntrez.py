@@ -135,6 +135,40 @@ def get_column_info(html_text, colname):
     s_noncol = stripped[e:s]
     s_noncol = s_noncol[regexp_col.match(stripped[e:s]).span()[1]:] #extract entire column content
     splitted = re.findall( r"<td[^>]*>(.*?)</td>", s_noncol)[0].split("<br>") #extract column values, separated by <br>
+                        
+def check_two_col(res, name = "Channel 1"):
+    
+    if len(res) == 0:
+        
+        raise KeyError(f"{name} column not found")
+        
+    elif len(res) > 1:
+        
+        raise NotImplementedError(f"More than 1 {name} column found") 
+        
+
+def get_two_col_spans(text):
+    
+    """
+    Find the spans in a sample document that correspond to 
+    the sections of a two channel microarray sample document 
+    that correspond to channel 1 and channel 2
+    """
+    
+    re1 = r'<td[^>]*>Channel 1</td></tr>'
+    re2 = r'<tr[^>]*><td[^>]*>Channel 2</td></tr>'
+    
+    span1 = list(re.finditer(re1,page))
+    check_two_col(span1)
+    span1 = span1[0].span()
+    
+    span2 = list(re.finditer(re2,page))
+    check_two_col(span2, "Channel 2")
+    span2 = span2[0].span()
+    
+    assert span2[0] > span1[1]; "Channel 2 found before Channel 1, check document"
+    
+    return [(span1[1], span2[0]), (span2[1], len(text))]
 
     return [i.split(":")  for i in splitted][:-1]            
         
