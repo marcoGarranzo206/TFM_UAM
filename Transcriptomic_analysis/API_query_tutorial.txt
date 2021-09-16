@@ -1,0 +1,46 @@
+CMAP API queries:
+
+taken from the following tutorial: IMP, there appear to be many typos in the tutorial, the commands here are what worked.
+
+https://clue.io/connectopedia/query_api_tutorial
+
+Also useful:
+
+
+GRP, GMT and GMX file formats:
+
+https://clue.io/connectopedia/grp_gmt_gmx_format
+
+
+Batch query tutorial: IMP to know how to format files for the query
+
+https://clue.io/connectopedia/batch_query_tutorial
+
+IMPORTANT: MUST HAVE clue.io account to get API key
+---------------------------------------------------------
+
+
+
+Briefly, these API allow you to query your ranked lists to the L1000 profiles database, as described here: https://www.cell.com/cell/pdf/S0092-8674(17)31309-0.pdf
+
+Once we obtained the up and down ranked lists (down is optional) of 10-150 genes (should include a bit more, application uses up to 150 I THINK. However, the L1000 database uses a subset of the human genome, so some genes in the lists may not be used, so its good to have a few more) save them in separate gmt files. Their structure is described in the link. It should be the following
+
+name_of_ranked_list_(up|dn) (remove parentheses)	TAG	TABDELIMITED_ENTREZ_IDS_OF_GENES
+
+VERY IMPORTANT: name_of_ranked_list MUST MATCH EXACTLY, except the _up or _down. Down is optional, so all names in down must have a corresponding up, but not viceversa. Up and down need not be in the same order
+
+COMMANDS: cURL
+(change user_key)
+content type can be also in json (check url tutorial)
+
+curl -i -X POST -H "user_key:e896c326dff0f857e0ecc8a91323433b"  -H "Content-Type: multipart/form-data" -F "tool_id=sig_gutc_tool" -F "uptag-cmapfile=@./CMAP_UP.gmt" -F "dntag-cmapfile=@./CMAP_DN.gmt" -F "name=BAR" -F "data_type=L1000" -F "dataset=Touchstone" https://api.clue.io/api/jobs
+
+The response will include, among other things, a job id. Using a get request and this id you can know the status of the query:
+
+curl -X GET --header "Accept: application/json" --header "user_key:e896c326dff0f857e0ecc8a91323433b" "https://api.clue.io/api/jobs/findByJobId/5e15938f5beec6001388e3ff"
+
+If it is finished, you will receive, among other things, the download url.
+Type it into browser or use a get request. IMP: add "http:" before its name
+
+DONE. Proceed to analyze the results
+
